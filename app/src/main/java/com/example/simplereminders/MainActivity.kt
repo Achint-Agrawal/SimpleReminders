@@ -46,6 +46,20 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
         
+        // Hide/show FAB based on navigation destination
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.SecondFragment -> {
+                    // Hide FAB when on add/edit reminder screen
+                    binding.fab.hide()
+                }
+                else -> {
+                    // Show FAB on other screens (mainly FirstFragment - reminder list)
+                    binding.fab.show()
+                }
+            }
+        }
+        
         // Request notification permission for Android 13+
         requestNotificationPermission()
 
