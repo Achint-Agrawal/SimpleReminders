@@ -22,6 +22,8 @@ class SecondFragment : Fragment() {
     private lateinit var reminderManager: ReminderManager
     private var selectedHour = 9 // Default 9:00 AM
     private var selectedMinute = 0
+    private var editingReminderId: Long = -1L // -1 means creating new reminder
+    private var editingReminder: Reminder? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,15 +38,73 @@ class SecondFragment : Fragment() {
 
         reminderManager = ReminderManager(requireContext())
         
+        // Check if we're editing an existing reminder
+        editingReminderId = arguments?.getLong("reminderId", -1L) ?: -1L
+        if (editingReminderId != -1L) {
+            editingReminder = reminderManager.getReminders().find { it.id == editingReminderId }
+            loadReminderForEditing()
+        }
+        
         setupFrequencyRadioButtons()
         setupTimePickerButton()
         setupButtons()
         updateIntervalUnitText()
         
         // Initialize UI state - hide interval container for default "One time" selection
-        binding.customIntervalContainer.visibility = View.GONE
-        binding.daysOfWeekContainer.visibility = View.GONE
-        binding.dayOfMonthContainer.visibility = View.GONE
+        if (editingReminder == null) {
+            binding.customIntervalContainer.visibility = View.GONE
+            binding.daysOfWeekContainer.visibility = View.GONE
+            binding.dayOfMonthContainer.visibility = View.GONE
+        }
+    }
+    
+    private fun loadReminderForEditing() {
+        editingReminder?.let { reminder ->
+            // Update screen title and button text for edit mode
+            binding.screenTitle.text = "Edit Reminder"
+            binding.saveButton.text = "Update Reminder"
+            
+            // Populate form with existing reminder data
+            binding.reminderTitleInput.setText(reminder.title)
+            
+            // Set frequency radio button
+            when (reminder.frequency) {
+                Frequency.ONE_TIME -> binding.oneTimeRadio.isChecked = true
+                Frequency.DAILY -> binding.dailyRadio.isChecked = true
+                Frequency.WEEKLY -> binding.weeklyRadio.isChecked = true
+                Frequency.MONTHLY -> binding.monthlyRadio.isChecked = true
+                Frequency.CUSTOM_DAYS -> binding.customDaysRadio.isChecked = true
+            }
+            
+            // Set custom interval
+            binding.intervalInput.setText(reminder.customInterval.toString())
+            
+            // Set day of month
+            binding.dayOfMonthInput.setText(reminder.dayOfMonth.toString())
+            
+            // Set time
+            selectedHour = reminder.reminderHour
+            selectedMinute = reminder.reminderMinute
+            updateTimeButtonText()
+            
+            // Set days of week
+            reminder.daysOfWeek.forEach { day ->
+                when (day) {
+                    DayOfWeek.MONDAY -> binding.mondayCheckbox.isChecked = true
+                    DayOfWeek.TUESDAY -> binding.tuesdayCheckbox.isChecked = true
+                    DayOfWeek.WEDNESDAY -> binding.wednesdayCheckbox.isChecked = true
+                    DayOfWeek.THURSDAY -> binding.thursdayCheckbox.isChecked = true
+                    DayOfWeek.FRIDAY -> binding.fridayCheckbox.isChecked = true
+                    DayOfWeek.SATURDAY -> binding.saturdayCheckbox.isChecked = true
+                    DayOfWeek.SUNDAY -> binding.sundayCheckbox.isChecked = true
+                }
+            }
+            
+            // Update UI visibility based on frequency
+            setupFrequencyRadioButtons()
+            // Trigger the radio button change to show/hide appropriate sections
+            binding.frequencyRadioGroup.check(binding.frequencyRadioGroup.checkedRadioButtonId)
+        }
     }
     
     private fun setupFrequencyRadioButtons() {
@@ -175,6 +235,7 @@ class SecondFragment : Fragment() {
         }
         
         val reminder = Reminder(
+            id = if (editingReminderId != -1L) editingReminderId else 0,
             title = title,
             frequency = frequency,
             customInterval = customInterval,
@@ -184,8 +245,15 @@ class SecondFragment : Fragment() {
             reminderMinute = selectedMinute
         )
         
-        reminderManager.addReminder(reminder)
-        Toast.makeText(context, "Reminder saved!", Toast.LENGTH_SHORT).show()
+        if (editingReminderId != -1L) {
+            // Update existing reminder
+            reminderManager.updateReminder(reminder)
+            Toast.makeText(context, "Reminder updated!", Toast.LENGTH_SHORT).show()
+        } else {
+            // Add new reminder
+            reminderManager.addReminder(reminder)
+            Toast.makeText(context, "Reminder saved!", Toast.LENGTH_SHORT).show()
+        }
         findNavController().navigateUp()
     }
     

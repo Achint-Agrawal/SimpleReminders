@@ -34,6 +34,15 @@ class ReminderManager(context: Context) {
         return newReminder
     }
 
+    fun updateReminder(reminder: Reminder) {
+        val reminders = getReminders().toMutableList()
+        val index = reminders.indexOfFirst { it.id == reminder.id }
+        if (index != -1) {
+            reminders[index] = reminder
+            saveReminders(reminders)
+        }
+    }
+
     fun deleteReminder(id: Long) {
         val reminders = getReminders().toMutableList()
         reminders.removeAll { it.id == id }

@@ -10,7 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 class ReminderAdapter(
     private var reminders: List<Reminder>,
     private val onToggle: (Long) -> Unit,
-    private val onDelete: (Long) -> Unit
+    private val onDelete: (Long) -> Unit,
+    private val onEdit: (Reminder) -> Unit
 ) : RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>() {
 
     class ReminderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -63,6 +64,11 @@ class ReminderAdapter(
         
         holder.deleteButton.setOnClickListener {
             onDelete(reminder.id)
+        }
+        
+        // Make the entire item clickable for editing
+        holder.itemView.setOnClickListener {
+            onEdit(reminder)
         }
     }
 

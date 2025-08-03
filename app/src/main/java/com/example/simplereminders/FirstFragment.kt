@@ -47,6 +47,13 @@ class FirstFragment : Fragment() {
             onDelete = { id ->
                 reminderManager.deleteReminder(id)
                 loadReminders()
+            },
+            onEdit = { reminder ->
+                // Navigate to edit screen with reminder data
+                val bundle = Bundle().apply {
+                    putLong("reminderId", reminder.id)
+                }
+                findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, bundle)
             }
         )
         
