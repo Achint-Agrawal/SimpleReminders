@@ -3,23 +3,11 @@ package com.example.simplereminders
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
 import com.google.gson.reflect.TypeToken
-import java.lang.reflect.Type
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 class ReminderManager(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("reminders", Context.MODE_PRIVATE)
-    private val gson = GsonBuilder()
-        .registerTypeAdapter(LocalTime::class.java, LocalTimeAdapter())
-        .create()
+    private val gson = Gson()
     private var nextId = 1L
 
     init {
@@ -32,7 +20,7 @@ class ReminderManager(context: Context) {
         return try {
             gson.fromJson(json, type) ?: emptyList()
         } catch (e: Exception) {
-            // Handle migration from old format
+            // Handle migration from old format or any parsing errors
             emptyList()
         }
     }
@@ -68,17 +56,5 @@ class ReminderManager(context: Context) {
 
     private fun saveNextId() {
         prefs.edit().putLong("next_id", nextId).apply()
-    }
-}
-
-class LocalTimeAdapter : JsonSerializer<LocalTime>, JsonDeserializer<LocalTime> {
-    private val formatter = DateTimeFormatter.ISO_LOCAL_TIME
-
-    override fun serialize(src: LocalTime?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
-        return JsonPrimitive(src?.format(formatter))
-    }
-
-    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): LocalTime {
-        return LocalTime.parse(json?.asString, formatter)
     }
 }

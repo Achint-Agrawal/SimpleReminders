@@ -40,7 +40,7 @@ class ReminderAdapter(
             Frequency.CUSTOM_DAYS -> "Every ${reminder.customInterval} days"
         }
         
-        val timeText = reminder.reminderTime.format(java.time.format.DateTimeFormatter.ofPattern("h:mm a"))
+        val timeText = reminder.getFormattedTime()
         holder.frequencyText.text = "$frequencyText at $timeText"
         
         // Format days of week

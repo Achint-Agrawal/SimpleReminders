@@ -1,16 +1,22 @@
 package com.example.simplereminders
 
-import java.time.LocalTime
-
 data class Reminder(
     val id: Long = 0,
     val title: String,
     val frequency: Frequency,
     val customInterval: Int = 1, // For every X days/weeks/months
     val daysOfWeek: Set<DayOfWeek> = emptySet(),
-    val reminderTime: LocalTime = LocalTime.of(9, 0), // Default 9:00 AM
+    val reminderHour: Int = 9, // Hour in 24-hour format (0-23)
+    val reminderMinute: Int = 0, // Minute (0-59)
     val isActive: Boolean = true
-)
+) {
+    // Helper function to format time for display
+    fun getFormattedTime(): String {
+        val hour12 = if (reminderHour == 0) 12 else if (reminderHour > 12) reminderHour - 12 else reminderHour
+        val amPm = if (reminderHour < 12) "AM" else "PM"
+        return String.format("%d:%02d %s", hour12, reminderMinute, amPm)
+    }
+}
 
 enum class Frequency(val displayName: String) {
     DAILY("Daily"),

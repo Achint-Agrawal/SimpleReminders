@@ -10,8 +10,6 @@ import android.widget.CheckBox
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.simplereminders.databinding.FragmentSecondBinding
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -22,7 +20,8 @@ class SecondFragment : Fragment() {
     private val binding get() = _binding!!
     
     private lateinit var reminderManager: ReminderManager
-    private var selectedTime = LocalTime.of(9, 0) // Default 9:00 AM
+    private var selectedHour = 9 // Default 9:00 AM
+    private var selectedMinute = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,19 +74,21 @@ class SecondFragment : Fragment() {
             TimePickerDialog(
                 requireContext(),
                 { _, hourOfDay, minute ->
-                    selectedTime = LocalTime.of(hourOfDay, minute)
+                    selectedHour = hourOfDay
+                    selectedMinute = minute
                     updateTimeButtonText()
                 },
-                selectedTime.hour,
-                selectedTime.minute,
+                selectedHour,
+                selectedMinute,
                 false // Use 12-hour format
             ).show()
         }
     }
     
     private fun updateTimeButtonText() {
-        val formatter = DateTimeFormatter.ofPattern("h:mm a")
-        binding.timePickerButton.text = selectedTime.format(formatter)
+        val hour12 = if (selectedHour == 0) 12 else if (selectedHour > 12) selectedHour - 12 else selectedHour
+        val amPm = if (selectedHour < 12) "AM" else "PM"
+        binding.timePickerButton.text = String.format("%d:%02d %s", hour12, selectedMinute, amPm)
     }
     
     private fun setupButtons() {
@@ -139,7 +140,8 @@ class SecondFragment : Fragment() {
             frequency = frequency,
             customInterval = customInterval,
             daysOfWeek = daysOfWeek,
-            reminderTime = selectedTime
+            reminderHour = selectedHour,
+            reminderMinute = selectedMinute
         )
         
         reminderManager.addReminder(reminder)
