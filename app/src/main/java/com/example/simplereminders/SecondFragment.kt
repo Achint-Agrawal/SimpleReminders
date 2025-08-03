@@ -6,7 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.CheckBox
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.simplereminders.databinding.FragmentSecondBinding
@@ -46,14 +48,32 @@ class SecondFragment : Fragment() {
         // Check if we're editing an existing reminder
         editingReminderId = arguments?.getLong("reminderId", -1L) ?: -1L
         if (editingReminderId != -1L) {
-            editingReminder = reminderManager.getReminders().find { it.id == editingReminderId }
-            loadReminderForEditing()
+            try {
+                editingReminder = reminderManager.getReminders().find { it.id == editingReminderId }
+            } catch (e: Exception) {
+                android.util.Log.e("SecondFragment", "Error loading reminder for editing: ${e.message}", e)
+                Toast.makeText(context, "Error loading reminder. Creating new one instead.", Toast.LENGTH_SHORT).show()
+                editingReminder = null
+                editingReminderId = -1L
+            }
         }
         
         setupFrequencyRadioButtons()
+        setupMonthlyPatternRadioButtons()
+        setupMonthlySpinners()
         setupTimePickerButton()
         setupButtons()
         updateIntervalUnitText()
+        
+        // Load reminder data after UI setup is complete
+        if (editingReminder != null) {
+            try {
+                loadReminderForEditing()
+            } catch (e: Exception) {
+                android.util.Log.e("SecondFragment", "Error loading reminder data: ${e.message}", e)
+                Toast.makeText(context, "Error loading reminder data. Some fields may be reset.", Toast.LENGTH_SHORT).show()
+            }
+        }
         
         // Initialize UI state - hide interval container for default "One time" selection
         if (editingReminder == null) {
@@ -87,6 +107,23 @@ class SecondFragment : Fragment() {
             // Set day of month
             binding.dayOfMonthInput.setText(reminder.dayOfMonth.toString())
             
+            // Set monthly pattern
+            when (reminder.monthlyPattern) {
+                MonthlyPattern.SPECIFIC_DATE -> binding.specificDateRadio.isChecked = true
+                MonthlyPattern.RELATIVE_DAY -> binding.relativeDayRadio.isChecked = true
+            }
+            
+            // Set monthly ordinal and day of week for spinners
+            val ordinalIndex = MonthlyOrdinal.values().indexOf(reminder.monthlyOrdinal)
+            if (ordinalIndex >= 0) {
+                binding.monthlyOrdinalSpinner.setSelection(ordinalIndex)
+            }
+            
+            val dayIndex = DayOfWeek.values().indexOf(reminder.monthlyDayOfWeek)
+            if (dayIndex >= 0) {
+                binding.monthlyDayOfWeekSpinner.setSelection(dayIndex)
+            }
+            
             // Set time
             selectedHour = reminder.reminderHour
             selectedMinute = reminder.reminderMinute
@@ -110,8 +147,10 @@ class SecondFragment : Fragment() {
             
             // Update UI visibility based on frequency
             setupFrequencyRadioButtons()
+            setupMonthlyPatternRadioButtons()
             // Trigger the radio button change to show/hide appropriate sections
             binding.frequencyRadioGroup.check(binding.frequencyRadioGroup.checkedRadioButtonId)
+            binding.monthlyPatternRadioGroup.check(binding.monthlyPatternRadioGroup.checkedRadioButtonId)
         }
     }
     
@@ -142,6 +181,35 @@ class SecondFragment : Fragment() {
             }
             updateIntervalUnitText()
         }
+    }
+    
+    private fun setupMonthlyPatternRadioButtons() {
+        binding.monthlyPatternRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.specific_date_radio -> {
+                    binding.specificDateContainer.visibility = View.VISIBLE
+                    binding.relativeDayContainer.visibility = View.GONE
+                }
+                R.id.relative_day_radio -> {
+                    binding.specificDateContainer.visibility = View.GONE
+                    binding.relativeDayContainer.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+    
+    private fun setupMonthlySpinners() {
+        // Setup ordinal spinner
+        val ordinalOptions = MonthlyOrdinal.values().map { it.displayName }
+        val ordinalAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, ordinalOptions)
+        ordinalAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.monthlyOrdinalSpinner.adapter = ordinalAdapter
+        
+        // Setup day of week spinner
+        val dayOptions = DayOfWeek.values().map { it.displayName }
+        val dayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, dayOptions)
+        dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.monthlyDayOfWeekSpinner.adapter = dayAdapter
     }
     
     private fun updateIntervalUnitText() {
@@ -218,16 +286,50 @@ class SecondFragment : Fragment() {
             1 // Default for one-time and daily
         }
         
-        // Get day of month for monthly reminders
-        val dayOfMonth = if (frequency == Frequency.MONTHLY) {
-            val day = binding.dayOfMonthInput.text?.toString()?.toIntOrNull() ?: 1
-            if (day < 1 || day > 31) {
-                Toast.makeText(context, "Day of month must be between 1 and 31", Toast.LENGTH_SHORT).show()
-                return
+        // Get day of month and monthly pattern for monthly reminders
+        val dayOfMonth: Int
+        val monthlyPattern: MonthlyPattern
+        val monthlyOrdinal: MonthlyOrdinal
+        val monthlyDayOfWeek: DayOfWeek
+        
+        if (frequency == Frequency.MONTHLY) {
+            monthlyPattern = when (binding.monthlyPatternRadioGroup.checkedRadioButtonId) {
+                R.id.specific_date_radio -> MonthlyPattern.SPECIFIC_DATE
+                R.id.relative_day_radio -> MonthlyPattern.RELATIVE_DAY
+                else -> MonthlyPattern.SPECIFIC_DATE
             }
-            day
+            
+            if (monthlyPattern == MonthlyPattern.SPECIFIC_DATE) {
+                val day = binding.dayOfMonthInput.text?.toString()?.toIntOrNull() ?: 1
+                if (day < 1 || day > 31) {
+                    Toast.makeText(context, "Day of month must be between 1 and 31", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                dayOfMonth = day
+                monthlyOrdinal = MonthlyOrdinal.FIRST // Default values for specific date
+                monthlyDayOfWeek = DayOfWeek.MONDAY
+            } else {
+                // Relative day pattern
+                dayOfMonth = 1 // Default value for relative day
+                val ordinalIndex = binding.monthlyOrdinalSpinner.selectedItemPosition
+                monthlyOrdinal = if (ordinalIndex >= 0 && ordinalIndex < MonthlyOrdinal.values().size) {
+                    MonthlyOrdinal.values()[ordinalIndex]
+                } else {
+                    MonthlyOrdinal.FIRST
+                }
+                
+                val dayIndex = binding.monthlyDayOfWeekSpinner.selectedItemPosition
+                monthlyDayOfWeek = if (dayIndex >= 0 && dayIndex < DayOfWeek.values().size) {
+                    DayOfWeek.values()[dayIndex]
+                } else {
+                    DayOfWeek.MONDAY
+                }
+            }
         } else {
-            1 // Default for other frequencies
+            dayOfMonth = 1 // Default for other frequencies
+            monthlyPattern = MonthlyPattern.SPECIFIC_DATE
+            monthlyOrdinal = MonthlyOrdinal.FIRST
+            monthlyDayOfWeek = DayOfWeek.MONDAY
         }
         
         val daysOfWeek = if (frequency == Frequency.WEEKLY) {
@@ -258,6 +360,9 @@ class SecondFragment : Fragment() {
             customInterval = customInterval,
             daysOfWeek = daysOfWeek,
             dayOfMonth = dayOfMonth,
+            monthlyPattern = monthlyPattern,
+            monthlyOrdinal = monthlyOrdinal,
+            monthlyDayOfWeek = monthlyDayOfWeek,
             reminderHour = selectedHour,
             reminderMinute = selectedMinute,
             snoozeDurationMinutes = snoozeDuration

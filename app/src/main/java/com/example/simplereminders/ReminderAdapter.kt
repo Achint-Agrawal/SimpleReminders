@@ -40,7 +40,7 @@ class ReminderAdapter(
             Frequency.WEEKLY -> if (reminder.customInterval == 1) "Weekly" else "Every ${reminder.customInterval} weeks"
             Frequency.MONTHLY -> {
                 val intervalText = if (reminder.customInterval == 1) "Monthly" else "Every ${reminder.customInterval} months"
-                "$intervalText on the ${reminder.getFormattedDayOfMonth()}"
+                "$intervalText ${reminder.getFormattedMonthlyPattern()}"
             }
             Frequency.CUSTOM_DAYS -> "Every ${reminder.customInterval} days"
         }

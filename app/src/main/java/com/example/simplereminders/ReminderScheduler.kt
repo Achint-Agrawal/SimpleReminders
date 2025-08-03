@@ -131,7 +131,15 @@ class ReminderScheduler(private val context: Context) {
             }
             
             Frequency.MONTHLY -> {
-                return findNextMonthlyOccurrence(calendar, reminder.dayOfMonth, currentTime)
+                return when (reminder.monthlyPattern) {
+                    MonthlyPattern.SPECIFIC_DATE -> findNextMonthlyOccurrence(calendar, reminder.dayOfMonth, currentTime)
+                    MonthlyPattern.RELATIVE_DAY -> findNextRelativeMonthlyOccurrence(
+                        calendar, 
+                        reminder.monthlyOrdinal, 
+                        reminder.monthlyDayOfWeek, 
+                        currentTime
+                    )
+                }
             }
             
             Frequency.CUSTOM_DAYS -> {
@@ -183,5 +191,84 @@ class ReminderScheduler(private val context: Context) {
         }
         
         return calendar.timeInMillis
+    }
+    
+    private fun findNextRelativeMonthlyOccurrence(
+        calendar: Calendar, 
+        ordinal: MonthlyOrdinal, 
+        dayOfWeek: DayOfWeek, 
+        currentTime: Long
+    ): Long {
+        val targetCalendarDay = when (dayOfWeek) {
+            DayOfWeek.SUNDAY -> Calendar.SUNDAY
+            DayOfWeek.MONDAY -> Calendar.MONDAY
+            DayOfWeek.TUESDAY -> Calendar.TUESDAY
+            DayOfWeek.WEDNESDAY -> Calendar.WEDNESDAY
+            DayOfWeek.THURSDAY -> Calendar.THURSDAY
+            DayOfWeek.FRIDAY -> Calendar.FRIDAY
+            DayOfWeek.SATURDAY -> Calendar.SATURDAY
+        }
+        
+        // Try current month first
+        val targetDay = findRelativeDayInMonth(calendar, ordinal, targetCalendarDay)
+        if (targetDay != null) {
+            calendar.set(Calendar.DAY_OF_MONTH, targetDay)
+            if (calendar.timeInMillis > currentTime) {
+                return calendar.timeInMillis
+            }
+        }
+        
+        // Move to next month and find the target day
+        calendar.add(Calendar.MONTH, 1)
+        val nextMonthTargetDay = findRelativeDayInMonth(calendar, ordinal, targetCalendarDay)
+        if (nextMonthTargetDay != null) {
+            calendar.set(Calendar.DAY_OF_MONTH, nextMonthTargetDay)
+            return calendar.timeInMillis
+        }
+        
+        // Fallback to the 1st of the month if calculation fails
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        return calendar.timeInMillis
+    }
+    
+    private fun findRelativeDayInMonth(calendar: Calendar, ordinal: MonthlyOrdinal, targetDayOfWeek: Int): Int? {
+        val month = calendar.get(Calendar.MONTH)
+        val year = calendar.get(Calendar.YEAR)
+        val maxDaysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        
+        when (ordinal) {
+            MonthlyOrdinal.LAST -> {
+                // Find last occurrence of the target day in the month
+                for (day in maxDaysInMonth downTo 1) {
+                    calendar.set(year, month, day)
+                    if (calendar.get(Calendar.DAY_OF_WEEK) == targetDayOfWeek) {
+                        return day
+                    }
+                }
+            }
+            else -> {
+                // Find first, second, third, or fourth occurrence
+                val targetOccurrence = when (ordinal) {
+                    MonthlyOrdinal.FIRST -> 1
+                    MonthlyOrdinal.SECOND -> 2
+                    MonthlyOrdinal.THIRD -> 3
+                    MonthlyOrdinal.FOURTH -> 4
+                    else -> 1
+                }
+                
+                var occurrenceCount = 0
+                for (day in 1..maxDaysInMonth) {
+                    calendar.set(year, month, day)
+                    if (calendar.get(Calendar.DAY_OF_WEEK) == targetDayOfWeek) {
+                        occurrenceCount++
+                        if (occurrenceCount == targetOccurrence) {
+                            return day
+                        }
+                    }
+                }
+            }
+        }
+        
+        return null
     }
 }

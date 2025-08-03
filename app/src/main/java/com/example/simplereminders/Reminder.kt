@@ -7,6 +7,9 @@ data class Reminder(
     val customInterval: Int = 1, // For every X days/weeks/months
     val daysOfWeek: Set<DayOfWeek> = emptySet(),
     val dayOfMonth: Int = 1, // Day of month for monthly reminders (1-31)
+    val monthlyPattern: MonthlyPattern = MonthlyPattern.SPECIFIC_DATE, // Pattern type for monthly reminders
+    val monthlyOrdinal: MonthlyOrdinal = MonthlyOrdinal.FIRST, // First, second, third, fourth, last
+    val monthlyDayOfWeek: DayOfWeek = DayOfWeek.MONDAY, // Day of week for relative monthly patterns
     val reminderHour: Int = 9, // Hour in 24-hour format (0-23)
     val reminderMinute: Int = 0, // Minute (0-59)
     val snoozeDurationMinutes: Int = 5, // Default snooze duration in minutes
@@ -30,6 +33,14 @@ data class Reminder(
         }
         return "$dayOfMonth$suffix"
     }
+    
+    // Helper function to format monthly pattern for display
+    fun getFormattedMonthlyPattern(): String {
+        return when (monthlyPattern) {
+            MonthlyPattern.SPECIFIC_DATE -> "On the ${getFormattedDayOfMonth()} of each month"
+            MonthlyPattern.RELATIVE_DAY -> "${monthlyOrdinal.displayName} ${monthlyDayOfWeek.displayName} of each month"
+        }
+    }
 }
 
 enum class Frequency(val displayName: String) {
@@ -48,4 +59,17 @@ enum class DayOfWeek(val displayName: String) {
     FRIDAY("Fri"),
     SATURDAY("Sat"),
     SUNDAY("Sun")
+}
+
+enum class MonthlyPattern(val displayName: String) {
+    SPECIFIC_DATE("Specific date"), // e.g., 15th of each month
+    RELATIVE_DAY("Relative day") // e.g., first Friday of each month
+}
+
+enum class MonthlyOrdinal(val displayName: String) {
+    FIRST("First"),
+    SECOND("Second"),
+    THIRD("Third"),
+    FOURTH("Fourth"),
+    LAST("Last")
 }

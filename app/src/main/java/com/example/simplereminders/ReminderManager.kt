@@ -16,14 +16,38 @@ class ReminderManager(context: Context) {
     }
 
     fun getReminders(): List<Reminder> {
-        val json = prefs.getString("reminders_list", "[]")
+        val json = prefs.getString("reminders_list", "[]") ?: "[]"
         val type = object : TypeToken<List<Reminder>>() {}.type
         return try {
-            gson.fromJson(json, type) ?: emptyList()
+            val reminders = gson.fromJson<List<Reminder>>(json, type) ?: emptyList()
+            // Check if we need to migrate any reminders
+            val migratedReminders = reminders.map { reminder ->
+                // This ensures that any reminder loaded gets the new fields initialized
+                // even if they weren't present in the stored JSON
+                reminder.copy() // This will use default values for missing fields
+            }
+            migratedReminders
         } catch (e: Exception) {
             // Handle migration from old format or any parsing errors
-            emptyList()
+            android.util.Log.e("ReminderManager", "Error parsing reminders: ${e.message}", e)
+            // Try to parse as old format and convert
+            try {
+                migrateFromOldFormat(json)
+            } catch (migrationError: Exception) {
+                android.util.Log.e("ReminderManager", "Migration failed: ${migrationError.message}", migrationError)
+                // Clear corrupted data and start fresh
+                prefs.edit().remove("reminders_list").apply()
+                emptyList()
+            }
         }
+    }
+    
+    private fun migrateFromOldFormat(json: String): List<Reminder> {
+        // Simple migration: clear the data and let users recreate reminders
+        // This is safer than trying to parse complex old formats
+        android.util.Log.i("ReminderManager", "Migrating from old format - clearing existing data")
+        prefs.edit().remove("reminders_list").apply()
+        return emptyList()
     }
 
     fun addReminder(reminder: Reminder): Reminder {

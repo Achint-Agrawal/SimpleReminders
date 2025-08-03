@@ -19,7 +19,8 @@ Simple Reminders is a focused Android application that provides notification-bas
 - **FR-2.1.2.2**: Users shall be able to set daily reminders
 - **FR-2.1.2.3**: Users shall be able to set weekly reminders with specific days selection
 - **FR-2.1.2.4**: Users shall be able to set monthly reminders with specific day of month
-- **FR-2.1.2.5**: Users shall be able to set custom interval reminders (every X days/weeks/months)
+- **FR-2.1.2.5**: Users shall be able to set monthly reminders with relative patterns (e.g., "first Friday", "second Tuesday", "last Monday")
+- **FR-2.1.2.6**: Users shall be able to set custom interval reminders (every X days/weeks/months)
 
 #### 2.1.3 Time Configuration
 - **FR-2.1.3.1**: Users shall be able to set specific times for reminders (hour and minute)
@@ -71,8 +72,11 @@ Simple Reminders is a focused Android application that provides notification-bas
 - **FR-2.2.2.4**: Provide snooze duration input (minutes)
 - **FR-2.2.2.5**: Show interval input only for relevant frequencies
 - **FR-2.2.2.6**: Show day-of-week selection only for weekly frequency
-- **FR-2.2.2.7**: Show day-of-month input only for monthly frequency
-- **FR-2.2.2.8**: Validate all inputs before saving
+- **FR-2.2.2.7**: Show day-of-month input only for monthly frequency (specific date)
+- **FR-2.2.2.8**: Show relative pattern selection for monthly frequency (ordinal + day of week)
+- **FR-2.2.2.9**: Provide ordinal selection (first, second, third, fourth, last) for relative monthly patterns
+- **FR-2.2.2.10**: Provide day-of-week selection for relative monthly patterns
+- **FR-2.2.2.11**: Validate all inputs before saving
 
 ## 3. Non-Functional Requirements
 
