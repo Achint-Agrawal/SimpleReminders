@@ -49,11 +49,17 @@
             android:layout_marginBottom="8dp">
 
             <RadioButton
+                android:id="@+id/one_time_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="One time"
+                android:checked="true" />
+
+            <RadioButton
                 android:id="@+id/daily_radio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Daily"
-                android:checked="true" />
+                android:text="Daily" />
 
             <RadioButton
                 android:id="@+id/weekly_radio"

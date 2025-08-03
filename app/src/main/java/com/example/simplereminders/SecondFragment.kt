@@ -40,6 +40,10 @@ class SecondFragment : Fragment() {
         setupTimePickerButton()
         setupButtons()
         updateIntervalUnitText()
+        
+        // Initialize UI state - hide interval container for default "One time" selection
+        binding.customIntervalContainer.visibility = View.GONE
+        binding.daysOfWeekContainer.visibility = View.GONE
     }
     
     private fun setupFrequencyRadioButtons() {
@@ -47,9 +51,16 @@ class SecondFragment : Fragment() {
             when (checkedId) {
                 R.id.weekly_radio -> {
                     binding.daysOfWeekContainer.visibility = View.VISIBLE
+                    binding.customIntervalContainer.visibility = View.VISIBLE
+                }
+                R.id.monthly_radio, R.id.custom_days_radio -> {
+                    binding.daysOfWeekContainer.visibility = View.GONE
+                    binding.customIntervalContainer.visibility = View.VISIBLE
                 }
                 else -> {
+                    // One time and Daily don't show interval or days
                     binding.daysOfWeekContainer.visibility = View.GONE
+                    binding.customIntervalContainer.visibility = View.GONE
                 }
             }
             updateIntervalUnitText()
@@ -110,17 +121,24 @@ class SecondFragment : Fragment() {
         }
         
         val frequency = when (binding.frequencyRadioGroup.checkedRadioButtonId) {
+            R.id.one_time_radio -> Frequency.ONE_TIME
             R.id.daily_radio -> Frequency.DAILY
             R.id.weekly_radio -> Frequency.WEEKLY
             R.id.monthly_radio -> Frequency.MONTHLY
             R.id.custom_days_radio -> Frequency.CUSTOM_DAYS
-            else -> Frequency.DAILY
+            else -> Frequency.ONE_TIME
         }
         
-        val customInterval = binding.intervalInput.text?.toString()?.toIntOrNull() ?: 1
-        if (customInterval < 1) {
-            Toast.makeText(context, "Interval must be at least 1", Toast.LENGTH_SHORT).show()
-            return
+        // Only get custom interval for frequencies that need it
+        val customInterval = if (frequency in listOf(Frequency.WEEKLY, Frequency.MONTHLY, Frequency.CUSTOM_DAYS)) {
+            val interval = binding.intervalInput.text?.toString()?.toIntOrNull() ?: 1
+            if (interval < 1) {
+                Toast.makeText(context, "Interval must be at least 1", Toast.LENGTH_SHORT).show()
+                return
+            }
+            interval
+        } else {
+            1 // Default for one-time and daily
         }
         
         val daysOfWeek = if (frequency == Frequency.WEEKLY) {

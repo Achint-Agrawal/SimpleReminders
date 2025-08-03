@@ -19,6 +19,7 @@ data class Reminder(
 }
 
 enum class Frequency(val displayName: String) {
+    ONE_TIME("One Time"),
     DAILY("Daily"),
     WEEKLY("Weekly"),
     MONTHLY("Monthly"),
