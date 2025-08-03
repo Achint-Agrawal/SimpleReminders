@@ -46,7 +46,7 @@
             android:id="@+id/frequency_radio_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <RadioButton
                 android:id="@+id/daily_radio"
@@ -67,7 +67,77 @@
                 android:layout_height="wrap_content"
                 android:text="Monthly" />
 
+            <RadioButton
+                android:id="@+id/custom_days_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Every X days" />
+
         </RadioGroup>
+
+        <!-- Custom Interval Input -->
+        <LinearLayout
+            android:id="@+id/custom_interval_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Every"
+                android:layout_marginEnd="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/interval_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/interval_unit_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="days" />
+
+        </LinearLayout>
+
+        <!-- Time Selection -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reminder time:"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="16dp" />
+
+            <Button
+                android:id="@+id/time_picker_button"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="9:00 AM"
+                android:drawableStart="@android:drawable/ic_menu_recent_history"
+                android:drawablePadding="8dp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/days_of_week_container"

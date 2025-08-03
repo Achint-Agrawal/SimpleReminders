@@ -31,7 +31,17 @@ class ReminderAdapter(
         val reminder = reminders[position]
         
         holder.titleText.text = reminder.title
-        holder.frequencyText.text = reminder.frequency.name.lowercase().replaceFirstChar { it.uppercase() }
+        
+        // Format frequency text with custom intervals and time
+        val frequencyText = when (reminder.frequency) {
+            Frequency.DAILY -> if (reminder.customInterval == 1) "Daily" else "Every ${reminder.customInterval} days"
+            Frequency.WEEKLY -> if (reminder.customInterval == 1) "Weekly" else "Every ${reminder.customInterval} weeks"
+            Frequency.MONTHLY -> if (reminder.customInterval == 1) "Monthly" else "Every ${reminder.customInterval} months"
+            Frequency.CUSTOM_DAYS -> "Every ${reminder.customInterval} days"
+        }
+        
+        val timeText = reminder.reminderTime.format(java.time.format.DateTimeFormatter.ofPattern("h:mm a"))
+        holder.frequencyText.text = "$frequencyText at $timeText"
         
         // Format days of week
         if (reminder.frequency == Frequency.WEEKLY && reminder.daysOfWeek.isNotEmpty()) {

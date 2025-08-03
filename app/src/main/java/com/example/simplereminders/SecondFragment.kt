@@ -1,5 +1,6 @@
 package com.example.simplereminders
 
+import android.app.TimePickerDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,6 +10,8 @@ import android.widget.CheckBox
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.simplereminders.databinding.FragmentSecondBinding
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -19,6 +22,7 @@ class SecondFragment : Fragment() {
     private val binding get() = _binding!!
     
     private lateinit var reminderManager: ReminderManager
+    private var selectedTime = LocalTime.of(9, 0) // Default 9:00 AM
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,7 +38,9 @@ class SecondFragment : Fragment() {
         reminderManager = ReminderManager(requireContext())
         
         setupFrequencyRadioButtons()
+        setupTimePickerButton()
         setupButtons()
+        updateIntervalUnitText()
     }
     
     private fun setupFrequencyRadioButtons() {
@@ -47,7 +53,41 @@ class SecondFragment : Fragment() {
                     binding.daysOfWeekContainer.visibility = View.GONE
                 }
             }
+            updateIntervalUnitText()
         }
+    }
+    
+    private fun updateIntervalUnitText() {
+        val unitText = when (binding.frequencyRadioGroup.checkedRadioButtonId) {
+            R.id.daily_radio -> "days"
+            R.id.weekly_radio -> "weeks"
+            R.id.monthly_radio -> "months"
+            R.id.custom_days_radio -> "days"
+            else -> "days"
+        }
+        binding.intervalUnitText.text = unitText
+    }
+    
+    private fun setupTimePickerButton() {
+        updateTimeButtonText()
+        
+        binding.timePickerButton.setOnClickListener {
+            TimePickerDialog(
+                requireContext(),
+                { _, hourOfDay, minute ->
+                    selectedTime = LocalTime.of(hourOfDay, minute)
+                    updateTimeButtonText()
+                },
+                selectedTime.hour,
+                selectedTime.minute,
+                false // Use 12-hour format
+            ).show()
+        }
+    }
+    
+    private fun updateTimeButtonText() {
+        val formatter = DateTimeFormatter.ofPattern("h:mm a")
+        binding.timePickerButton.text = selectedTime.format(formatter)
     }
     
     private fun setupButtons() {
@@ -72,7 +112,14 @@ class SecondFragment : Fragment() {
             R.id.daily_radio -> Frequency.DAILY
             R.id.weekly_radio -> Frequency.WEEKLY
             R.id.monthly_radio -> Frequency.MONTHLY
+            R.id.custom_days_radio -> Frequency.CUSTOM_DAYS
             else -> Frequency.DAILY
+        }
+        
+        val customInterval = binding.intervalInput.text?.toString()?.toIntOrNull() ?: 1
+        if (customInterval < 1) {
+            Toast.makeText(context, "Interval must be at least 1", Toast.LENGTH_SHORT).show()
+            return
         }
         
         val daysOfWeek = if (frequency == Frequency.WEEKLY) {
@@ -90,7 +137,9 @@ class SecondFragment : Fragment() {
         val reminder = Reminder(
             title = title,
             frequency = frequency,
-            daysOfWeek = daysOfWeek
+            customInterval = customInterval,
+            daysOfWeek = daysOfWeek,
+            reminderTime = selectedTime
         )
         
         reminderManager.addReminder(reminder)
