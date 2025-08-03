@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
@@ -21,6 +20,7 @@ class SecondFragment : Fragment() {
     private val binding get() = _binding!!
     
     private lateinit var reminderManager: ReminderManager
+    private lateinit var settingsManager: SettingsManager
     private var selectedHour = 9 // Default 9:00 AM
     private var selectedMinute = 0
     private var editingReminderId: Long = -1L // -1 means creating new reminder
@@ -38,6 +38,10 @@ class SecondFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         reminderManager = ReminderManager(requireContext())
+        settingsManager = SettingsManager(requireContext())
+        
+        // Set default snooze duration from settings
+        binding.snoozeDurationInput.setText(settingsManager.getDefaultSnoozeDuration().toString())
         
         // Check if we're editing an existing reminder
         editingReminderId = arguments?.getLong("reminderId", -1L) ?: -1L
@@ -48,7 +52,6 @@ class SecondFragment : Fragment() {
         
         setupFrequencyRadioButtons()
         setupTimePickerButton()
-        setupSnoozeDurationSpinner()
         setupButtons()
         updateIntervalUnitText()
         
@@ -90,11 +93,7 @@ class SecondFragment : Fragment() {
             updateTimeButtonText()
             
             // Set snooze duration
-            val snoozeDurations = SnoozeDuration.values()
-            val snoozeIndex = snoozeDurations.indexOfFirst { it.minutes == reminder.snoozeDurationMinutes }
-            if (snoozeIndex != -1) {
-                binding.snoozeDurationSpinner.setSelection(snoozeIndex)
-            }
+            binding.snoozeDurationInput.setText(reminder.snoozeDurationMinutes.toString())
             
             // Set days of week
             reminder.daysOfWeek.forEach { day ->
@@ -180,23 +179,6 @@ class SecondFragment : Fragment() {
         binding.timePickerButton.text = String.format("%d:%02d %s", hour12, selectedMinute, amPm)
     }
     
-    private fun setupSnoozeDurationSpinner() {
-        val snoozeDurations = SnoozeDuration.values()
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            snoozeDurations.map { it.displayName }
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.snoozeDurationSpinner.adapter = adapter
-        
-        // Set default selection (10 minutes)
-        val defaultIndex = snoozeDurations.indexOfFirst { it.minutes == 10 }
-        if (defaultIndex != -1) {
-            binding.snoozeDurationSpinner.setSelection(defaultIndex)
-        }
-    }
-    
     private fun setupButtons() {
         binding.cancelButton.setOnClickListener {
             findNavController().navigateUp()
@@ -260,8 +242,14 @@ class SecondFragment : Fragment() {
             return
         }
         
-        // Get selected snooze duration
-        val selectedSnoozeDuration = SnoozeDuration.values()[binding.snoozeDurationSpinner.selectedItemPosition]
+        // Get and validate snooze duration
+        val snoozeDurationText = binding.snoozeDurationInput.text?.toString()?.trim()
+        val snoozeDuration = try {
+            snoozeDurationText?.toInt()?.coerceIn(1, 999) ?: settingsManager.getDefaultSnoozeDuration()
+        } catch (e: NumberFormatException) {
+            Toast.makeText(context, "Please enter a valid snooze duration (1-999 minutes)", Toast.LENGTH_SHORT).show()
+            return
+        }
         
         val reminder = Reminder(
             id = if (editingReminderId != -1L) editingReminderId else 0,
@@ -272,7 +260,7 @@ class SecondFragment : Fragment() {
             dayOfMonth = dayOfMonth,
             reminderHour = selectedHour,
             reminderMinute = selectedMinute,
-            snoozeDurationMinutes = selectedSnoozeDuration.minutes
+            snoozeDurationMinutes = snoozeDuration
         )
         
         if (editingReminderId != -1L) {

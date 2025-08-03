@@ -43,35 +43,36 @@ Simple Reminders is a focused Android application that provides notification-bas
 #### 2.1.6 Snooze Functionality
 - **FR-025**: Users shall be able to snooze reminders from notifications
 - **FR-026**: Each reminder shall have configurable snooze duration
-- **FR-027**: Default snooze duration shall be 10 minutes
-- **FR-028**: Snooze options shall include: 5min, 10min, 15min, 30min, 1hr, 2hr
+- **FR-027**: Default snooze duration shall be 5 minutes
+- **FR-028**: Users shall be able to input custom snooze duration in minutes (1-999)
 - **FR-029**: Snoozed reminders shall re-trigger after snooze duration
 - **FR-030**: Users shall be able to snooze multiple times
+- **FR-031**: App shall provide settings to configure default snooze duration
 
 #### 2.1.7 Data Persistence
-- **FR-031**: All reminder data shall be stored locally on device
-- **FR-032**: App shall maintain data between app restarts
-- **FR-033**: App shall handle data migration for app updates
-- **FR-034**: No internet connection required for core functionality
+- **FR-032**: All reminder data shall be stored locally on device
+- **FR-033**: App shall maintain data between app restarts
+- **FR-034**: App shall handle data migration for app updates
+- **FR-035**: No internet connection required for core functionality
 
 ### 2.2 User Interface Requirements
 
 #### 2.2.1 Main Screen
-- **FR-035**: Display list of all reminders with title, frequency, and time
-- **FR-036**: Show empty state message when no reminders exist
-- **FR-037**: Provide floating action button (FAB) to add new reminders
-- **FR-038**: Each reminder item shall show toggle switch and delete button
-- **FR-039**: Tapping reminder item shall open edit screen
+- **FR-036**: Display list of all reminders with title, frequency, and time
+- **FR-037**: Show empty state message when no reminders exist
+- **FR-038**: Provide floating action button (FAB) to add new reminders
+- **FR-039**: Each reminder item shall show toggle switch and delete button
+- **FR-040**: Tapping reminder item shall open edit screen
 
 #### 2.2.2 Add/Edit Reminder Screen
-- **FR-040**: Provide text input for reminder title
-- **FR-041**: Provide frequency selection (radio buttons)
-- **FR-042**: Provide time picker for reminder time
-- **FR-043**: Provide snooze duration selection
-- **FR-044**: Show interval input only for relevant frequencies
-- **FR-045**: Show day-of-week selection only for weekly frequency
-- **FR-046**: Show day-of-month input only for monthly frequency
-- **FR-047**: Validate all inputs before saving
+- **FR-041**: Provide text input for reminder title
+- **FR-042**: Provide frequency selection (radio buttons)
+- **FR-043**: Provide time picker for reminder time
+- **FR-044**: Provide snooze duration input (minutes)
+- **FR-045**: Show interval input only for relevant frequencies
+- **FR-046**: Show day-of-week selection only for weekly frequency
+- **FR-047**: Show day-of-month input only for monthly frequency
+- **FR-048**: Validate all inputs before saving
 
 ## 3. Non-Functional Requirements
 

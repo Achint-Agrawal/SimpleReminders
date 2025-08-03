@@ -7,6 +7,17 @@ A focused Android app for creating and managing notification-based reminders wit
 - ✅ **Create reminders** with custom titles and snooze duration
 - ⏰ **Set frequency**: One-time, Daily, Weekly, Monthly, or custom intervals
 - 📅 **Choose specific days** for weekly reminders (Mon, Tue, Wed, etc.)
+- 📅 **Choose day of month** for monthly reminders (1st, 15th, etc.)
+- 🔔 **System notifications** that respect your device's notification settings
+- ✅ **Mark as Done** directly from notifications
+- 😴 **Snooze reminders** with custom duration input (1-999 minutes)
+- ⚙️ **Configurable settings** for default snooze duration
+- 🔄 **Toggle reminders** on/off with a simple switch
+- ✏️ **Edit reminders** by tapping on them
+- 🗑️ **Delete reminders** easily
+- 💾 **Local storage** - all data stored securely on device
+- 🎨 **Clean, intuitive interface** with Material Design
+- 📅 **Choose specific days** for weekly reminders (Mon, Tue, Wed, etc.)
 - � **Choose day of month** for monthly reminders (1st, 15th, etc.)
 - 🔔 **System notifications** that respect your device's notification settings
 - ✅ **Mark as Done** directly from notifications
@@ -24,15 +35,17 @@ A focused Android app for creating and managing notification-based reminders wit
    - Enter a title for your reminder
    - Choose frequency (One-time, Daily, Weekly, Monthly, or custom interval)
    - Set the reminder time using the time picker
-   - Configure snooze duration (5 minutes to 2 hours)
+   - Enter custom snooze duration in minutes (1-999)
    - For weekly reminders, select specific days
    - For monthly reminders, set the day of month
    - Tap "Save Reminder"
-3. **Manage Reminders**:
+3. **Configure Settings**: Access settings from the menu
+   - Set default snooze duration for new reminders
+4. **Manage Reminders**:
    - Toggle reminders on/off using the switch
    - Edit reminders by tapping on them
    - Delete reminders using the trash icon
-4. **Handle Notifications**:
+5. **Handle Notifications**:
    - When a reminder triggers, you'll get a notification
    - Tap "Mark as Done" to complete the reminder
    - Tap "Snooze" to delay the reminder by your configured duration
@@ -44,7 +57,8 @@ A focused Android app for creating and managing notification-based reminders wit
 - **System Integration**: Notifications respect your device's notification settings
 - **Actions**: Each notification includes "Mark as Done" and "Snooze" buttons
 - **Smart Scheduling**: Notifications are delivered even when the app isn't running
-- **Snooze Control**: Configurable snooze duration per reminder (5min, 10min, 15min, 30min, 1hr, 2hr)
+- **Snooze Control**: Custom snooze duration input per reminder (1-999 minutes)
+- **Configurable Defaults**: Set default snooze duration in app settings
 - **Completion Logic**: One-time reminders auto-disable; recurring reminders continue
 - **Battery Optimized**: Uses Android's AlarmManager for efficient scheduling
 
@@ -56,7 +70,8 @@ The app features:
 - Create/edit reminder form with frequency and time selection
 - Day-of-week selection for weekly reminders
 - Day-of-month input for monthly reminders
-- Snooze duration configuration
+- Custom snooze duration input field
+- Settings screen for default configurations
 - System notifications with action buttons
 - Card-based layout for easy viewing
 

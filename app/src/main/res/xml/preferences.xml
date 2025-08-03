@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="Reminder Settings"
+        android:key="reminder_category">
+
+        <EditTextPreference
+            android:key="default_snooze_duration"
+            android:title="Default Snooze Duration"
+            android:summary="Default number of minutes to snooze reminders (1-999)"
+            android:defaultValue="5"
+            android:inputType="number"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -9,7 +9,7 @@ data class Reminder(
     val dayOfMonth: Int = 1, // Day of month for monthly reminders (1-31)
     val reminderHour: Int = 9, // Hour in 24-hour format (0-23)
     val reminderMinute: Int = 0, // Minute (0-59)
-    val snoozeDurationMinutes: Int = 10, // Default snooze duration in minutes
+    val snoozeDurationMinutes: Int = 5, // Default snooze duration in minutes
     val isActive: Boolean = true
 ) {
     // Helper function to format time for display
@@ -48,13 +48,4 @@ enum class DayOfWeek(val displayName: String) {
     FRIDAY("Fri"),
     SATURDAY("Sat"),
     SUNDAY("Sun")
-}
-
-enum class SnoozeDuration(val displayName: String, val minutes: Int) {
-    FIVE_MINUTES("5 minutes", 5),
-    TEN_MINUTES("10 minutes", 10),
-    FIFTEEN_MINUTES("15 minutes", 15),
-    THIRTY_MINUTES("30 minutes", 30),
-    ONE_HOUR("1 hour", 60),
-    TWO_HOURS("2 hours", 120)
 }

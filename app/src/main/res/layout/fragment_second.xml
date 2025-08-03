@@ -203,11 +203,26 @@
                 android:textStyle="bold"
                 android:layout_marginEnd="16dp" />
 
-            <Spinner
-                android:id="@+id/snooze_duration_spinner"
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:hint="Min">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/snooze_duration_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="5" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:text="minutes"
+                android:textSize="16sp" />
 
         </LinearLayout>
 
