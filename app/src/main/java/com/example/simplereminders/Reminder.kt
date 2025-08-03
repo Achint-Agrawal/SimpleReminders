@@ -6,6 +6,7 @@ data class Reminder(
     val frequency: Frequency,
     val customInterval: Int = 1, // For every X days/weeks/months
     val daysOfWeek: Set<DayOfWeek> = emptySet(),
+    val dayOfMonth: Int = 1, // Day of month for monthly reminders (1-31)
     val reminderHour: Int = 9, // Hour in 24-hour format (0-23)
     val reminderMinute: Int = 0, // Minute (0-59)
     val isActive: Boolean = true
@@ -15,6 +16,18 @@ data class Reminder(
         val hour12 = if (reminderHour == 0) 12 else if (reminderHour > 12) reminderHour - 12 else reminderHour
         val amPm = if (reminderHour < 12) "AM" else "PM"
         return String.format("%d:%02d %s", hour12, reminderMinute, amPm)
+    }
+    
+    // Helper function to format day of month with ordinal suffix
+    fun getFormattedDayOfMonth(): String {
+        val suffix = when {
+            dayOfMonth in 11..13 -> "th"
+            dayOfMonth % 10 == 1 -> "st"
+            dayOfMonth % 10 == 2 -> "nd"
+            dayOfMonth % 10 == 3 -> "rd"
+            else -> "th"
+        }
+        return "$dayOfMonth$suffix"
     }
 }
 

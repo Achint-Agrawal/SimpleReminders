@@ -44,6 +44,7 @@ class SecondFragment : Fragment() {
         // Initialize UI state - hide interval container for default "One time" selection
         binding.customIntervalContainer.visibility = View.GONE
         binding.daysOfWeekContainer.visibility = View.GONE
+        binding.dayOfMonthContainer.visibility = View.GONE
     }
     
     private fun setupFrequencyRadioButtons() {
@@ -52,15 +53,23 @@ class SecondFragment : Fragment() {
                 R.id.weekly_radio -> {
                     binding.daysOfWeekContainer.visibility = View.VISIBLE
                     binding.customIntervalContainer.visibility = View.VISIBLE
+                    binding.dayOfMonthContainer.visibility = View.GONE
                 }
-                R.id.monthly_radio, R.id.custom_days_radio -> {
+                R.id.monthly_radio -> {
                     binding.daysOfWeekContainer.visibility = View.GONE
                     binding.customIntervalContainer.visibility = View.VISIBLE
+                    binding.dayOfMonthContainer.visibility = View.VISIBLE
+                }
+                R.id.custom_days_radio -> {
+                    binding.daysOfWeekContainer.visibility = View.GONE
+                    binding.customIntervalContainer.visibility = View.VISIBLE
+                    binding.dayOfMonthContainer.visibility = View.GONE
                 }
                 else -> {
-                    // One time and Daily don't show interval or days
+                    // One time and Daily don't show interval, days, or day of month
                     binding.daysOfWeekContainer.visibility = View.GONE
                     binding.customIntervalContainer.visibility = View.GONE
+                    binding.dayOfMonthContainer.visibility = View.GONE
                 }
             }
             updateIntervalUnitText()
@@ -141,6 +150,18 @@ class SecondFragment : Fragment() {
             1 // Default for one-time and daily
         }
         
+        // Get day of month for monthly reminders
+        val dayOfMonth = if (frequency == Frequency.MONTHLY) {
+            val day = binding.dayOfMonthInput.text?.toString()?.toIntOrNull() ?: 1
+            if (day < 1 || day > 31) {
+                Toast.makeText(context, "Day of month must be between 1 and 31", Toast.LENGTH_SHORT).show()
+                return
+            }
+            day
+        } else {
+            1 // Default for other frequencies
+        }
+        
         val daysOfWeek = if (frequency == Frequency.WEEKLY) {
             getSelectedDaysOfWeek()
         } else {
@@ -158,6 +179,7 @@ class SecondFragment : Fragment() {
             frequency = frequency,
             customInterval = customInterval,
             daysOfWeek = daysOfWeek,
+            dayOfMonth = dayOfMonth,
             reminderHour = selectedHour,
             reminderMinute = selectedMinute
         )
