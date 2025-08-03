@@ -4,14 +4,11 @@
 		{
 			"label": "Build Android App",
 			"type": "shell",
-			"command": "./gradlew",
+			"command": "gradlew.bat",
 			"args": [
 				"assembleDebug"
 			],
 			"group": "build",
-			"problemMatcher": [
-				"$gradle"
-			],
 			"isBackground": false
 		}
 	]

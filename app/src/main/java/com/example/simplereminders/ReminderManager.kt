@@ -9,6 +9,7 @@ class ReminderManager(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("reminders", Context.MODE_PRIVATE)
     private val gson = Gson()
     private var nextId = 1L
+    private val reminderScheduler = ReminderScheduler(context)
 
     init {
         nextId = prefs.getLong("next_id", 1L)
@@ -31,6 +32,12 @@ class ReminderManager(context: Context) {
         reminders.add(newReminder)
         saveReminders(reminders)
         saveNextId()
+        
+        // Schedule the reminder if it's active
+        if (newReminder.isActive) {
+            reminderScheduler.scheduleReminder(newReminder)
+        }
+        
         return newReminder
     }
 
@@ -40,6 +47,12 @@ class ReminderManager(context: Context) {
         if (index != -1) {
             reminders[index] = reminder
             saveReminders(reminders)
+            
+            // Reschedule the reminder
+            reminderScheduler.cancelReminder(reminder.id)
+            if (reminder.isActive) {
+                reminderScheduler.scheduleReminder(reminder)
+            }
         }
     }
 
@@ -47,15 +60,29 @@ class ReminderManager(context: Context) {
         val reminders = getReminders().toMutableList()
         reminders.removeAll { it.id == id }
         saveReminders(reminders)
+        
+        // Cancel the scheduled reminder
+        reminderScheduler.cancelReminder(id)
     }
 
     fun toggleReminder(id: Long) {
         val reminders = getReminders().toMutableList()
         val index = reminders.indexOfFirst { it.id == id }
         if (index != -1) {
-            reminders[index] = reminders[index].copy(isActive = !reminders[index].isActive)
+            val updatedReminder = reminders[index].copy(isActive = !reminders[index].isActive)
+            reminders[index] = updatedReminder
             saveReminders(reminders)
+            
+            // Update scheduling based on active state
+            reminderScheduler.cancelReminder(id)
+            if (updatedReminder.isActive) {
+                reminderScheduler.scheduleReminder(updatedReminder)
+            }
         }
+    }
+
+    fun getReminder(id: Long): Reminder? {
+        return getReminders().find { it.id == id }
     }
 
     private fun saveReminders(reminders: List<Reminder>) {
