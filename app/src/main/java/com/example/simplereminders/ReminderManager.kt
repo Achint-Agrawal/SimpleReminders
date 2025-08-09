@@ -117,4 +117,8 @@ class ReminderManager(context: Context) {
     private fun saveNextId() {
         prefs.edit().putLong("next_id", nextId).apply()
     }
+
+    fun rescheduleAllActive() {
+        getReminders().filter { it.isActive }.forEach { reminderScheduler.scheduleReminder(it) }
+    }
 }

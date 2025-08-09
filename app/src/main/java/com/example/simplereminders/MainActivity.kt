@@ -1,6 +1,11 @@
 package com.example.simplereminders
 
 import android.Manifest
+import android.app.AlarmManager
+import android.content.Context
+import android.content.IntentFilter
+import android.net.Uri
+import android.os.PowerManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -106,6 +111,44 @@ class MainActivity : AppCompatActivity() {
                 else -> {
                     // Request permission
                     notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Best-effort prompts to improve reliability
+        maybeRequestExactAlarmPermission()
+        maybeRequestIgnoreBatteryOptimizations()
+    }
+
+    private fun maybeRequestExactAlarmPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            if (!alarmManager.canScheduleExactAlarms()) {
+                try {
+                    val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                    intent.data = Uri.parse("package:$packageName")
+                    startActivity(intent)
+                } catch (_: Exception) {
+                    // Some devices may block this; ignore
+                }
+            }
+        }
+    }
+
+    private fun maybeRequestIgnoreBatteryOptimizations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+            val pkg = packageName
+            if (!pm.isIgnoringBatteryOptimizations(pkg)) {
+                try {
+                    val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    intent.data = Uri.parse("package:$pkg")
+                    startActivity(intent)
+                } catch (_: Exception) {
+                    // Ignore if not supported
                 }
             }
         }
