@@ -1,3 +1,5 @@
+_Very simple. Very reminders._
+
 # Simple Reminders
 
 A focused Android app for creating and managing notification-based reminders with completion and snooze functionality.
