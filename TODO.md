@@ -1,0 +1,1 @@
+- [ ] Create an icon for the app.
