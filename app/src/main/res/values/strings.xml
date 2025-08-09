@@ -7,6 +7,12 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
+    <!-- Notifications & permissions -->
+    <string name="notification_title">Reminder</string>
+    <string name="action_mark_done">Mark as Done</string>
+    <string name="action_snooze_with_minutes">Snooze (%1$dm)</string>
+    <string name="notification_permission_required">Notification permission is required for reminders to work</string>
+
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus

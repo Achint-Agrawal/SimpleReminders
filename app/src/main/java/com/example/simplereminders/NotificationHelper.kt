@@ -84,21 +84,21 @@ class NotificationHelper(private val context: Context) {
         
         // Build the notification
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Reminder")
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(context.getString(R.string.notification_title))
             .setContentText(reminder.title)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(false) // Don't auto-cancel, let user decide
             .setContentIntent(contentPendingIntent)
             .addAction(
-                R.drawable.ic_launcher_foreground, // TODO: Use proper icon
-                "Mark as Done",
+                R.mipmap.ic_launcher, // Using launcher icon as placeholder
+                context.getString(R.string.action_mark_done),
                 markDonePendingIntent
             )
             .addAction(
-                R.drawable.ic_launcher_foreground, // TODO: Use proper icon
-                "Snooze (${reminder.snoozeDurationMinutes}m)",
+                R.mipmap.ic_launcher, // Using launcher icon as placeholder
+                context.getString(R.string.action_snooze_with_minutes, reminder.snoozeDurationMinutes),
                 snoozePendingIntent
             )
             .setDefaults(NotificationCompat.DEFAULT_ALL)

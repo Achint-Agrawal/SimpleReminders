@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         if (!isGranted) {
             Snackbar.make(
                 binding.root,
-                "Notification permission is required for reminders to work",
+                getString(R.string.notification_permission_required),
                 Snackbar.LENGTH_LONG
             ).show()
         }
